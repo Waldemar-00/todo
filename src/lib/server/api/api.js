@@ -39,12 +39,23 @@ class UseTodos {
 						}
 					);
 				}
-				// else throw new Error('Todo not found');
 			});
 		} catch (error) {
 			console.log(error.message);
 		}
 	}
 }
-const db = JSON.parse(fs.readFileSync('src/lib/server/db/db.json', 'utf-8'));
-export const todosDB = new UseTodos(db);
+function getDB() {
+	let db;
+	let jsonBD;
+	try {
+		jsonDB = fs.readFileSync('src/lib/server/db/db.json', 'utf-8');
+	} catch (error) {
+		console.log('Not found db.json');
+		console.log(error.message);
+	}
+	if (jsonBD === '' || !jsonBD) db = [{ id: 0, text: 'No todos', done: false }];
+	else db = JSON.parse(jsonBD);
+	return db;
+}
+export const todosDB = new UseTodos(getDB());
