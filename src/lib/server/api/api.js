@@ -45,17 +45,18 @@ class UseTodos {
 		}
 	}
 }
-function getDB() {
+async function getDB() {
 	let db;
-	let jsonBD;
+	let jsonDB = '';
 	try {
-		jsonDB = fs.readFileSync('src/lib/server/db/db.json', 'utf-8');
+		jsonDB = await fs.readFileSync('src/lib/server/db/db.json', 'utf-8');
 	} catch (error) {
 		console.log('Not found db.json');
 		console.log(error.message);
 	}
-	if (jsonBD === '' || !jsonBD) db = [{ id: 0, text: 'No todos', done: false }];
-	else db = JSON.parse(jsonBD);
+	if (jsonDB === '') db = [{ id: 0, text: 'No todos', done: false }];
+	else db = JSON.parse(jsonDB);
 	return db;
 }
-export const todosDB = new UseTodos(getDB());
+const db = await getDB();
+export const todosDB = new UseTodos(db);
