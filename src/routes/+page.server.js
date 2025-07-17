@@ -1,4 +1,5 @@
 import { todosDB } from '$lib/server/api/api';
+import { fail } from '@sveltejs/kit';
 export const load = async () => {
 	return {
 		db: todosDB.db
@@ -6,28 +7,28 @@ export const load = async () => {
 };
 
 export const actions = {
-	delete: async ({ request }) => {
-		const formData = await request.formData();
-		try {
-			todosDB.delete(formData);
-		} catch (error) {
-			if (error instanceof Error) console.log(error.message);
-		}
-	},
 	add: async ({ request }) => {
 		const formData = await request.formData();
 		try {
-			todosDB.add(formData);
+			await todosDB.add(formData);
 		} catch (error) {
-			if (error instanceof Error) console.log(error.message);
+			return fail(500, { error: error instanceof Error ? error.message : 'Unknown error' });
+		}
+	},
+	delete: async ({ request }) => {
+		const formData = await request.formData();
+		try {
+			await todosDB.delete(formData);
+		} catch (error) {
+			return fail(500, { error: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	},
 	toggle: async ({ request }) => {
 		const formData = await request.formData();
 		try {
-			todosDB.toggle(formData);
+			await todosDB.toggle(formData);
 		} catch (error) {
-			if (error instanceof Error) console.log(error.message);
+			return fail(500, { error: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	}
 };

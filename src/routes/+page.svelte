@@ -1,40 +1,45 @@
 <script>
     import {enhance} from '$app/forms'
-    let {data} = $props()
+    let {data, form} = $props()
 </script>
+{#if form?.error}
+  <div class="error-centered">
+    {form.error}
+  </div>
+{:else}
+  <div id="app-container">
+    <h1>Todos</h1>
+    <form method="POST" action='?/add' use:enhance data-sveltekit-noscroll id="add-form">
+        <label title="write todo">
+            <input type="text" placeholder="add a todo" name='todo' {@attach (el) => el.focus()}>
+        </label>
+    </form>
 
-<div id="app-container">
-  <h1>Todos</h1>
-  <form method="POST" action='?/add' use:enhance data-sveltekit-noscroll id="add-form">
-      <label title="write todo">
-          <input type="text" placeholder="add a todo" name='todo' {@attach (el) => el.focus()}>
-      </label>
-  </form>
+    <ul>
+      {#each data.db as todo (todo.id)}
+          <li>
+              <form method="POST" action="?/toggle" use:enhance>
+                  <input type=hidden name=id value={todo.id}/>
+                  <label>
+                      <input type="checkbox" name=done checked={todo.done} onclick={(e) => {
+                          if(e.target instanceof HTMLInputElement) {
+                              e.target.form?.requestSubmit()
+                          }
+                      }
+                  }>
+                      <span>{todo.text}</span>
+                  </label>
+              </form>
 
-  <ul>
-    {#each data.db as todo (todo.id)}
-        <li>
-            <form method="POST" action="?/toggle" use:enhance>
-                <input type=hidden name=id value={todo.id}/>
-                <label>
-                    <input type="checkbox" name=done checked={todo.done} onclick={(e) => {
-                        if(e.target instanceof HTMLInputElement) {
-                            e.target.form?.requestSubmit()
-                        }
-                    }
-                }>
-                    <span>{todo.text}</span>
-                </label>
-            </form>
-
-            <form method="POST" action="?/delete" use:enhance>
-                <input type=hidden name=id value={todo.id}/>
-                <button type=submit>delete</button>
-            </form>
-        </li>
-    {/each}
-</ul>
-</div>
+              <form method="POST" action="?/delete" use:enhance>
+                  <input type=hidden name=id value={todo.id}/>
+                  <button type=submit>delete</button>
+              </form>
+          </li>
+      {/each}
+  </ul>
+  </div>
+{/if}
 
 <style>
 :global(body) {
@@ -163,6 +168,24 @@ button[type="submit"]:focus {
   background: #fff0f0;
 }
 
+.error-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #fff;
+  color: #b00020;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  z-index: 1000;
+  text-align: center;
+}
+
 @media (max-width: 1300px) {
   #app-container {
     max-width: 98vw;
@@ -200,6 +223,10 @@ button[type="submit"]:focus {
   label > span {
     max-width: 80vw;
   }
+  .error-centered {
+    font-size: 1.1rem;
+    padding: 0 1rem;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -236,6 +263,10 @@ button[type="submit"]:focus {
     background: #3a2326;
     border-color: #ff1744;
     color: #ff1744;
+  }
+  .error-centered {
+    background: #181818;
+    color: #ff5252;
   }
 }
 
