@@ -8,14 +8,26 @@ export const load = async () => {
 export const actions = {
 	delete: async ({ request }) => {
 		const formData = await request.formData();
-		todosDB.delete(formData);
+		try {
+			todosDB.delete(formData);
+		} catch (error) {
+			if (error instanceof Error) console.log(error.message);
+		}
 	},
 	add: async ({ request }) => {
 		const formData = await request.formData();
-		todosDB.add(formData);
+		try {
+			todosDB.add(formData);
+		} catch (error) {
+			if (error instanceof Error) console.log(error.message);
+		}
 	},
 	toggle: async ({ request }) => {
 		const formData = await request.formData();
-		todosDB.toggle(formData);
+		try {
+			todosDB.toggle(formData);
+		} catch (error) {
+			if (error instanceof Error) console.log(error.message);
+		}
 	}
 };
