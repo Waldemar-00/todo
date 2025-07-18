@@ -1,5 +1,6 @@
 import { todosDB } from '$lib/server/api/api';
 import { fail } from '@sveltejs/kit';
+
 export const load = async () => {
 	return {
 		db: todosDB.db

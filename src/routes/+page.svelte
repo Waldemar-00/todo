@@ -1,5 +1,6 @@
 <script>
     import {enhance} from '$app/forms'
+    import { fly, slide } from 'svelte/transition';
     let {data, form} = $props()
 </script>
 {#if form?.error}
@@ -16,8 +17,10 @@
     </form>
 
     <ul>
-      {#each data.db as todo (todo.id)}
-          <li>
+      {#each data.db as todo, i (todo.id)}
+          <li
+            in:fly={{ y: 40, duration: 180, delay: i * 40 }}
+            out:slide={{ duration: 160 }}>
               <form method="POST" action="?/toggle" use:enhance>
                   <input type=hidden name=id value={todo.id}/>
                   <label>
