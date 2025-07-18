@@ -12,7 +12,8 @@
     <h1>Todos</h1>
     <form method="POST" action='?/add' use:enhance data-sveltekit-noscroll id="add-form">
         <label title="write todo">
-            <input type="text" placeholder="add a todo" name='todo' {@attach (el) => el.focus()}>
+            <!-- svelte-ignore a11y_autofocus -->
+            <input type="text" placeholder="add a todo" name='todo' autofocus>
         </label>
     </form>
 
