@@ -4,6 +4,8 @@
     import {enhance} from '$app/forms'
     import { fly, slide } from 'svelte/transition';
     let {data, form} = $props()
+    let localTodos = $state(data.db)
+    let localTodosAddedID = $state([])
     // @ts-ignore
     let localTodosDeletedID = $state([])
 </script>
@@ -14,7 +16,21 @@
 {:else}
   <div id="app-container">
     <h1>Todos</h1>
-    <form method="POST" action='?/add' use:enhance data-sveltekit-noscroll id="add-form">
+    <form method="POST" action='?/add' use:enhance={({formData})=> {
+      const id = Date.now()
+      localTodosAddedID.push(id)
+      const text = formData.get('todo')
+      localTodos.push({id, text, done: false})
+      formData.append('id', id)
+      formData.append('done', false)
+      return async({update, result}) => {
+        await update()
+        if (result.type === 'success') {
+          localTodosAddedID = localTodosAddedID.filter((storedId) => storedId !== id)
+        }
+      }
+    }
+  } data-sveltekit-noscroll id="add-form">
         <label title="write todo">
             <!-- svelte-ignore a11y_autofocus -->
             <input type="text" placeholder="add a todo" name='todo' autofocus>
@@ -22,7 +38,7 @@
     </form>
 
     <ul>
-      {#each data.db.filter(t => !localTodosDeletedID.includes(t.id)) as todo, i (todo.id)}
+      {#each localTodos.filter(t => !localTodosDeletedID.includes(t.id)) as todo, i (todo.id)}
           <li
             in:fly={{ y: 40, duration: 180, delay: i * 40 }}
             out:slide={{ duration: 160 }}>
@@ -41,9 +57,12 @@
 
               <form method="POST" action="?/delete" use:enhance={() => {
                   localTodosDeletedID = [...localTodosDeletedID, todo.id]
-                  return async({update}) => {
+                  return async({update, result}) => {
                     await update()
-                    localTodosDeletedID = localTodosDeletedID.filter((id) => id !== todo.id)
+                    if (result.type === 'success') {
+                      localTodos = localTodos.filter((t) => t.id !== todo.id)
+                      localTodosDeletedID = localTodosDeletedID.filter((id) => id !== todo.id)
+                    }
                   }
                 }
               }>

@@ -9,21 +9,23 @@ class UseTodos {
 		return this.#db;
 	}
 	async add(formData) {
+		const id = Number(formData.get('id'));
 		const text = formData.get('todo');
-		const todo = { id: Date.now(), text, done: false };
-		this.#db.push(todo);
+		const done = formData.get('done') === 'true';
+		console.log(done);
+		this.#db.push({ id, text, done });
 		await fs.writeFile('src/lib/server/db/db.json', JSON.stringify(this.#db), 'utf-8');
 	}
 	async delete(formData) {
-		const id = formData.get('id');
-		this.#db = this.#db.filter((todo) => todo.id != id);
+		const id = Number(formData.get('id'));
+		this.#db = this.#db.filter((todo) => todo.id !== id);
 		await fs.writeFile('src/lib/server/db/db.json', JSON.stringify(this.#db), 'utf-8');
 	}
 	async toggle(formData) {
-		const id = formData.get('id');
+		const id = Number(formData.get('id'));
 		const done = formData.get('done'); // if false - receiving NULL
 		this.#db.forEach(async (todo, i) => {
-			if (todo.id === Number(id)) {
+			if (todo.id === id) {
 				todo.done = done === 'on';
 				await fs.writeFile('src/lib/server/db/db.json', JSON.stringify(this.#db), 'utf-8');
 			}
