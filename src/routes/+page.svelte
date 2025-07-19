@@ -1,7 +1,11 @@
 <script>
+// @ts-nocheck
+
     import {enhance} from '$app/forms'
     import { fly, slide } from 'svelte/transition';
     let {data, form} = $props()
+    // @ts-ignore
+    let localTodosDeletedID = $state([])
 </script>
 {#if form?.error}
   <div class="error-centered">
@@ -18,7 +22,7 @@
     </form>
 
     <ul>
-      {#each data.db as todo, i (todo.id)}
+      {#each data.db.filter(t => !localTodosDeletedID.includes(t.id)) as todo, i (todo.id)}
           <li
             in:fly={{ y: 40, duration: 180, delay: i * 40 }}
             out:slide={{ duration: 160 }}>
@@ -35,7 +39,14 @@
                   </label>
               </form>
 
-              <form method="POST" action="?/delete" use:enhance>
+              <form method="POST" action="?/delete" use:enhance={() => {
+                  localTodosDeletedID = [...localTodosDeletedID, todo.id]
+                  return async({update}) => {
+                    await update()
+                    localTodosDeletedID = localTodosDeletedID.filter((id) => id !== todo.id)
+                  }
+                }
+              }>
                   <input type=hidden name=id value={todo.id}/>
                   <button type=submit>delete</button>
               </form>
