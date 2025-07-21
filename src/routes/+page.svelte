@@ -1,13 +1,13 @@
 <script>
 // @ts-nocheck
 
-    import {enhance} from '$app/forms'
-    import { fly, slide } from 'svelte/transition';
-    let {data, form} = $props()
-    let localTodos = $state(data.db)
-    let localTodosAddedID = $state([])
-    // @ts-ignore
-    let localTodosDeletedID = $state([])
+  import {enhance} from '$app/forms'
+  import { fly, slide } from 'svelte/transition';
+  let {data, form} = $props()
+  let localTodos = $state(data.db)
+  let localTodosAddedID = $state([])
+  // @ts-ignore
+  let localTodosDeletedID = $state([])
 </script>
 {#if form?.error}
   <div class="error-centered">
@@ -42,7 +42,18 @@
           <li
             in:fly={{ y: 40, duration: 180, delay: i * 40 }}
             out:slide={{ duration: 160 }}>
-              <form method="POST" action="?/toggle" use:enhance>
+              <form method="POST" action="?/toggle" use:enhance={() => {
+                localTodos.forEach(t => t.id === todo.id ? { ...t, done: !t.done} : t)
+                return async({update, result}) => {
+                  await update()
+                  if(result.type === 'error') {
+                    localTodos = localTodos.map(t => t.id === todo.id ? { ...t, done: !t.done } : t)
+                  }
+                  if(result.type === 'success') {
+                    localTodos = data.db
+                  }
+                }
+              }}>
                   <input type=hidden name=id value={todo.id}/>
                   <label>
                       <input type="checkbox" name=done checked={todo.done} onclick={(e) => {

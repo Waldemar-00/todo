@@ -24,12 +24,11 @@ class UseTodos {
 	async toggle(formData) {
 		const id = Number(formData.get('id'));
 		const done = formData.get('done'); // if false - receiving NULL
-		this.#db.forEach(async (todo, i) => {
-			if (todo.id === id) {
-				todo.done = done === 'on';
-				await fs.writeFile('src/lib/server/db/db.json', JSON.stringify(this.#db), 'utf-8');
-			}
-		});
+		const todo = this.#db.find((t) => t.id === id);
+		if (todo) {
+			todo.done = done === 'on';
+			await fs.writeFile('src/lib/server/db/db.json', JSON.stringify(this.#db), 'utf-8');
+		}
 	}
 	static async createClass() {
 		let db;
